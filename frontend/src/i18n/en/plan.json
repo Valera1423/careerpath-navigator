@@ -1,0 +1,5 @@
+﻿{ "title": "Development plan", "empty": "Plan is empty. Press «Rebuild plan» on the main screen.",
+  "kind": { "course": "Course", "project": "Project", "practice": "Practice" },
+  "open_material": "Open material",
+  "due": { "overdue": "Overdue by {{days}} d", "today": "Today",
+    "soon": "In {{days}} d", "later": "By {{date}}" } }

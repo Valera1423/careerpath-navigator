@@ -1,0 +1,398 @@
+# =====================================================================
+# DATA-API.yaml — контракт собственного API CareerPath Navigator.
+#
+# Формат подготовлен в соответствии с требованиями хакатона
+# (пункт 5 «Формат сдачи → Только для решений с собственным API»).
+#
+# 9 обязательных полей отмечены в комментариях ниже.
+# =====================================================================
+
+# (1) Версия конфигурации схемы.
+schema_version: "1.0"
+
+# (2) Наименование решения и идентификатор команды.
+solution:
+  name: "CareerPath Navigator"
+  team_id: "careerpath-team"
+  repo: "https://github.com/<your-org>/careerpath-navigator"
+  commit_hash: "<заполняется перед сдачей — см. README>"
+
+# (3) Базовый адрес API (единый HTTPS, относительно которого формируются запросы).
+base_url: "https://careerpath.example.com/api/v1"
+
+# Ссылка на машинно-читаемое описание форматов (OpenAPI 3.1).
+openapi_spec: "./openapi.json"
+
+# =====================================================================
+# РОЛИ пользователей для проверки.
+# Используются в поле `role` внутри required_checks.
+# =====================================================================
+roles:
+  student:
+    description: "Студент / выпускник — основной пользователь мини-приложения"
+    auth_header: "X-Max-User-Id"
+    auth_example: "dev-user-1"
+    note: >
+      В production используется X-Max-Init-Data с HMAC-SHA256 подписью
+      от MAX Bridge. Для проверки MVP достаточно dev-режима
+      (ALLOW_INSECURE_INIT_DATA=true).
+
+  employer:
+    description: "HR-специалист — поиск анонимизированных кандидатов"
+    auth_header: "X-API-Key"
+    auth_example: "cp_<32-байтный токен, выдаётся при регистрации>"
+
+  admin:
+    description: "Администратор платформы — регистрация работодателей"
+    auth_header: "X-Admin-Secret"
+    auth_example: "change-me-in-production"
+
+# =====================================================================
+# ОБЯЗАТЕЛЬНЫЕ ПРОВЕРКИ (required_checks).
+#
+# Каждая проверка:
+#   id             — уникальный идентификатор
+#   name           — человекочитаемое название
+#   priority       — critical | important | optional
+#   description    — что проверяем
+#   steps          — последовательность HTTP-запросов
+#
+# Каждый step содержит 4 поля, требуемых ТЗ:
+#   (5) method      — HTTP-метод
+#   (5) path        — относительный путь эндпоинта
+#   (6) request     — headers, query, path-параметры, тело
+#   (7) role        — роль тестовой учётки
+#   (8) expected_status — допустимые коды ответа
+#   (9) expected_response — content_type, schema, required_fields
+# =====================================================================
+
+required_checks:
+
+  # -------------------------------------------------------------------
+  # 1. Онбординг студента
+  # -------------------------------------------------------------------
+  - id: "student_onboarding"
+    name: "Онбординг: создание профиля студента"
+    priority: "critical"
+    description: >
+      Создаёт профиль пользователя с целевой должностью и набором
+      имеющихся навыков. Обязательное согласие 152-ФЗ.
+    steps:
+      - method: "POST"
+        path: "/users/onboarding"
+        role: "student"
+        request:
+          headers:
+            Content-Type: "application/json"
+          query: {}
+          path_params: {}
+          body:
+            type: "object"
+            required: ["max_user_id", "desired_position", "consent_pd"]
+            properties:
+              max_user_id:
+                type: "string"
+                example: "dev-user-1"
+              full_name:
+                type: "string"
+                nullable: true
+                example: "Иван Тестов"
+              desired_position:
+                type: "string"
+                example: "Аналитик данных"
+              region:
+                type: "string"
+                nullable: true
+                example: "Москва"
+              experience:
+                type: "string"
+                enum: ["none", "internship", "junior"]
+                default: "none"
+              skills:
+                type: "array"
+                items: { type: "string" }
+                example: ["excel", "python"]
+              consent_pd:
+                type: "boolean"
+                example: true
+        expected_status: [201, 422]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "UserOut"
+          required_fields: ["id", "max_user_id", "desired_position", "skills", "consent_pd_given_at"]
+
+  # -------------------------------------------------------------------
+  # 2. Gap-анализ
+  # -------------------------------------------------------------------
+  - id: "skills_gap"
+    name: "Gap-анализ: разрыв между навыками и рынком"
+    priority: "critical"
+    description: >
+      Сравнивает профиль с открытыми вакансиями «Работа России»,
+      возвращает readiness_score, matched и missing.
+    steps:
+      - method: "GET"
+        path: "/skills/gap"
+        role: "student"
+        request:
+          headers: {}
+          query: {}
+          path_params: {}
+        expected_status: [200, 401, 404]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "SkillGapResponse"
+          required_fields: ["position", "source", "matched", "missing", "readiness_score"]
+
+  # -------------------------------------------------------------------
+  # 3. План развития
+  # -------------------------------------------------------------------
+  - id: "plan_regenerate"
+    name: "План развития: генерация и отметка шага"
+    priority: "critical"
+    description: >
+      Генерирует персональный план из gap-анализа и позволяет отметить
+      шаг выполненным (начисляет XP и достижения).
+    steps:
+      - method: "POST"
+        path: "/plan/regenerate"
+        role: "student"
+        request:
+          headers: {}
+          query: {}
+          path_params: {}
+        expected_status: [201, 401, 404]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "PlanResponse"
+          required_fields: ["steps", "total", "done", "progress_percent"]
+
+      - method: "POST"
+        path: "/plan/steps/{step_id}/toggle"
+        role: "student"
+        request:
+          headers: {}
+          query: {}
+          path_params:
+            step_id:
+              type: "integer"
+              example: 1
+        expected_status: [200, 401, 404]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "PlanStepOut"
+          required_fields: ["id", "skill", "title", "is_done"]
+
+  # -------------------------------------------------------------------
+  # 4. Симулятор карьерного дня
+  # -------------------------------------------------------------------
+  - id: "simulator_day"
+    name: "Симулятор: проживание рабочего дня в роли"
+    priority: "critical"
+    description: >
+      Запускает интерактивный сценарий дня, обрабатывает выборы
+      пользователя и возвращает список пробелов.
+    steps:
+      - method: "GET"
+        path: "/simulator/scenarios"
+        role: "student"
+        request:
+          headers: {}
+          query: {}
+          path_params: {}
+        expected_status: [200]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "list[ScenarioListOut]"
+          required_fields: ["id", "role", "duration_minutes", "intro"]
+
+      - method: "POST"
+        path: "/simulator/sessions"
+        role: "student"
+        request:
+          headers: {}
+          query:
+            scenario_id:
+              type: "string"
+              example: "data_analyst_day"
+          path_params: {}
+        expected_status: [201, 400, 401, 404]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "SimulatorSessionOut"
+          required_fields: ["session_id", "scenario_id", "node"]
+
+      - method: "POST"
+        path: "/simulator/sessions/{session_id}/choose"
+        role: "student"
+        request:
+          headers:
+            Content-Type: "application/json"
+          query: {}
+          path_params:
+            session_id:
+              type: "integer"
+              example: 1
+          body:
+            type: "object"
+            required: ["choice_id"]
+            properties:
+              choice_id:
+                type: "string"
+                example: "check_sql"
+        expected_status: [200, 400, 401, 404, 409]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "SimulatorChooseResponse"
+          required_fields: ["feedback", "effects", "next", "is_finished"]
+
+  # -------------------------------------------------------------------
+  # 5. Симулятор интервью
+  # -------------------------------------------------------------------
+  - id: "interview_star"
+    name: "Интервью: STAR-оценка ответа"
+    priority: "important"
+    description: >
+      Запускает сессию из 5 вопросов, оценивает структуру ответа
+      по STAR-методу (Situation, Task, Action, Result).
+    steps:
+      - method: "POST"
+        path: "/interview/sessions"
+        role: "student"
+        request:
+          headers: {}
+          query: {}
+          path_params: {}
+        expected_status: [201, 401, 404]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "InterviewQuestionOut"
+          required_fields: ["session_id", "question_index", "total", "question"]
+
+      - method: "POST"
+        path: "/interview/sessions/{session_id}/answer"
+        role: "student"
+        request:
+          headers:
+            Content-Type: "application/json"
+          query: {}
+          path_params:
+            session_id:
+              type: "integer"
+              example: 1
+          body:
+            type: "object"
+            required: ["answer"]
+            properties:
+              answer:
+                type: "string"
+                minLength: 5
+                maxLength: 4000
+        expected_status: [200, 401, 404, 409, 422]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "InterviewAnswerResponse"
+          required_fields: ["score", "feedback", "structure", "is_finished"]
+
+  # -------------------------------------------------------------------
+  # 6. Employer API — регистрация работодателя
+  # -------------------------------------------------------------------
+  - id: "employer_register"
+    name: "Employer API: регистрация работодателя"
+    priority: "important"
+    description: >
+      Создаёт аккаунт работодателя и возвращает API-ключ (показывается
+      один раз). Защищено админ-секретом.
+    steps:
+      - method: "POST"
+        path: "/employer/v1/employers/register"
+        role: "admin"
+        request:
+          headers:
+            Content-Type: "application/json"
+            X-Admin-Secret: "change-me-in-production"
+          query: {}
+          path_params: {}
+          body:
+            type: "object"
+            required: ["company_name", "contact_email"]
+            properties:
+              company_name:
+                type: "string"
+                example: "Demo HR"
+              contact_email:
+                type: "string"
+                example: "demo@hr.ru"
+        expected_status: [200, 403, 409, 422]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "EmployerRegisterResponse"
+          required_fields: ["api_key", "company_name"]
+
+  # -------------------------------------------------------------------
+  # 7. Employer API — поиск кандидатов
+  # -------------------------------------------------------------------
+  - id: "employer_search"
+    name: "Employer API: поиск анонимизированных кандидатов"
+    priority: "important"
+    description: >
+      Возвращает только студентов с opt-in, ФИО/email не передаются,
+      регион округляется до федерального округа.
+    steps:
+      - method: "GET"
+        path: "/employer/v1/candidates/search"
+        role: "employer"
+        request:
+          headers:
+            X-API-Key: "cp_<получен на шаге employer_register>"
+          query:
+            position:
+              type: "string"
+              example: "Аналитик"
+            skills:
+              type: "string"
+              example: "sql,python"
+            limit:
+              type: "integer"
+              default: 20
+              minimum: 1
+              maximum: 50
+          path_params: {}
+        expected_status: [200, 401]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "EmployerSearchResponse"
+          required_fields: ["source", "total", "items"]
+
+  # -------------------------------------------------------------------
+  # 8. Health-check
+  # -------------------------------------------------------------------
+  - id: "health"
+    name: "Health-check сервиса"
+    priority: "optional"
+    description: "Возвращает статус работоспособности backend."
+    steps:
+      - method: "GET"
+        path: "/health"
+        role: null
+        request:
+          headers: {}
+          query: {}
+          path_params: {}
+        expected_status: [200]
+        expected_response:
+          content_type: "application/json"
+          schema_ref: "inline"
+          required_fields: ["status", "service"]
+
+# =====================================================================
+# ПРИМЕЧАНИЯ
+# =====================================================================
+# • base_url заполняется перед сдачей: replace example.com на реальный
+#   HTTPS-адрес развёрнутого решения.
+# • commit_hash заполняется автоматически (`git rev-parse HEAD`)
+#   перед финальным коммитом.
+# • Полное машинно-читаемое описание — в ./openapi.json.
+# • Порядок прохождения основного пользовательского сценария —
+#   в README.md, раздел «Пошаговый сценарий проверки».
+# =====================================================================

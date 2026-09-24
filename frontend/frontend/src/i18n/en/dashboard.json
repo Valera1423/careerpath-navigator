@@ -1,0 +1,15 @@
+﻿{
+  "readiness": "role readiness",
+  "plan_progress": "Plan: {{done}} of {{total}} steps",
+  "regenerate": "Rebuild plan",
+  "regenerating": "Rebuilding…",
+  "missing_title": "Missing skills",
+  "missing_empty": "No gap found — you can apply now.",
+  "importance": { "critical": "Critical", "important": "Important", "nice-to-have": "Bonus" },
+  "share_of_vacancies": "{{percent}}% of jobs",
+  "source_trudvsem": "Trudvsem",
+  "source_fallback": "test data",
+  "analyzed": "Jobs analyzed: {{count}} · source: {{source}}",
+  "upload_resume": "Upload resume",
+  "upload_resume_hint": "PDF or DOCX. Skills will be extracted automatically."
+}

@@ -1,0 +1,106 @@
+services:
+  backend:
+    build: ./backend
+    container_name: careerpath-backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/data/careerpath.db}
+      TRUDVSEM_BASE_URL: ${TRUDVSEM_BASE_URL:-http://opendata.trudvsem.ru/api/v1}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:-}
+      MAX_WEBHOOK_SECRET: ${MAX_WEBHOOK_SECRET:-change-me}
+      ALLOW_INSECURE_INIT_DATA: ${ALLOW_INSECURE_INIT_DATA:-true}
+      ADMIN_SECRET: ${ADMIN_SECRET:-change-me-in-production}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      # --- MAX Web App + webhook ---
+      WEBAPP_URL: ${WEBAPP_URL:-}
+      WEBHOOK_URL: ${WEBHOOK_URL:-}
+    volumes:
+      - backend-data:/app/data
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status==200 else 1)"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE: /api/v1
+    container_name: careerpath-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8081:80"
+
+  bot:
+    image: careerpath-navigator-backend:latest
+    container_name: careerpath-bot
+    profiles: ["bot"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/data/careerpath.db}
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:-}
+      MAX_WEBHOOK_SECRET: ${MAX_WEBHOOK_SECRET:-change-me}
+      WEBAPP_URL: ${WEBAPP_URL:-}
+      ALLOW_INSECURE_INIT_DATA: ${ALLOW_INSECURE_INIT_DATA:-true}
+    entrypoint: ["python", "-m", "app.services.bot_poller"]
+    volumes:
+      - backend-data:/app/data
+    depends_on:
+      backend:
+        condition: service_healthy
+  db:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    container_name: careerpath-db
+    environment:
+      POSTGRES_USER: careerpath
+      POSTGRES_PASSWORD: careerpath
+      POSTGRES_DB: careerpath
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careerpath"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    profiles: ["observability"]
+    container_name: careerpath-prometheus
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prom-data:/prometheus
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    profiles: ["observability"]
+    container_name: careerpath-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./infra/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./infra/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  backend-data:
+  pg-data:
+  prom-data:
+  grafana-data:

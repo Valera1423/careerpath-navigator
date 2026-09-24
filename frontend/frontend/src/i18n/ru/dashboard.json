@@ -1,0 +1,19 @@
+﻿{
+  "readiness": "готовность к роли",
+  "plan_progress": "План: {{done}} из {{total}} шагов",
+  "regenerate": "Пересчитать план",
+  "regenerating": "Пересчитываем…",
+  "missing_title": "Чего не хватает",
+  "missing_empty": "Разрыв не обнаружен — можно откликаться на вакансии.",
+  "importance": {
+    "critical": "Критично",
+    "important": "Важно",
+    "nice-to-have": "Плюс"
+  },
+  "share_of_vacancies": "{{percent}}% вакансий",
+  "source_trudvsem": "Работа России",
+  "source_fallback": "тестовые данные",
+  "analyzed": "Проанализировано вакансий: {{count}} · источник: {{source}}",
+  "upload_resume": "Загрузить резюме",
+  "upload_resume_hint": "PDF или DOCX. Мы извлечём навыки автоматически."
+}

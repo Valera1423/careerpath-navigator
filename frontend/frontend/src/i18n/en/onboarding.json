@@ -1,0 +1,19 @@
+﻿{
+  "title": "CareerPath Navigator",
+  "step": "Step {{current}} of {{total}}",
+  "position_title": "What do you want to become?",
+  "position_placeholder": "e.g. Data Analyst",
+  "region_placeholder": "Region (optional)",
+  "experience_title": "Your experience",
+  "experience_none": "No experience yet",
+  "experience_internship": "Had an internship",
+  "experience_junior": "Worked as a junior",
+  "skills_title": "What can you do?",
+  "skills_hint": "Select skills — we will build a plan based on them.",
+  "custom_skill": "Custom skill",
+  "consent_label": "I agree to personal data processing under FZ-152",
+  "consent_link": "Learn more",
+  "build_plan": "Build plan",
+  "saving": "Saving…",
+  "consent_required": "Consent is required to continue"
+}

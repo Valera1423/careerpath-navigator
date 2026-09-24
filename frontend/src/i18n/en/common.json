@@ -1,0 +1,9 @@
+﻿{ "app_name": "CareerPath Navigator",
+  "tabs": { "dashboard": "Overview", "plan": "Plan", "vacancies": "Jobs",
+    "applications": "Applications", "interview": "Interview", "market": "Market",
+    "coach": "Coach", "compass": "Compass", "school": "For School",
+    "simulator": "Simulator", "leaderboard": "Top", "settings": "Settings" },
+  "actions": { "next": "Next", "back": "Back", "save": "Save", "cancel": "Cancel",
+    "retry": "Retry", "reload": "Reload", "copy": "Copy", "delete": "Delete",
+    "start": "Start", "finish": "Finish" },
+  "loading": "Loading…", "error_generic": "Something went wrong", "empty_generic": "Nothing here yet" }

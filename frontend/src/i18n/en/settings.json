@@ -1,0 +1,6 @@
+﻿{ "title": "Settings", "language": "Language", "theme": "Theme",
+  "theme_light": "Light", "theme_dark": "Dark", "theme_system": "System",
+  "employer_opt_in": "Allow employers to see my profile",
+  "employer_opt_in_hint": "Only anonymized data is shared.",
+  "delete_account": "Delete profile", "delete_account_hint": "All data will be deleted permanently.",
+  "delete_confirm": "Delete profile? This cannot be undone." }

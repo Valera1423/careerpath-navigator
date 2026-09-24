@@ -1,0 +1,4 @@
+﻿{ "empty": "No matching vacancies yet.",
+  "empty_hint": "Try expanding the region or changing the target position.",
+  "fallback_notice": "Trudvsem API is unavailable — showing test vacancies.",
+  "matched": "Matched", "apply": "Applied", "applied": "Application saved", "open": "Open" }

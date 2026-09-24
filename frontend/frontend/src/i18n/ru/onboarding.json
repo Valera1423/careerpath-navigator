@@ -1,0 +1,19 @@
+﻿{
+  "title": "CareerPath Navigator",
+  "step": "Шаг {{current}} из {{total}}",
+  "position_title": "Кем хочешь стать?",
+  "position_placeholder": "Например: Аналитик данных",
+  "region_placeholder": "Регион (необязательно)",
+  "experience_title": "Твой опыт",
+  "experience_none": "Пока нет опыта",
+  "experience_internship": "Была стажировка",
+  "experience_junior": "Работал(а) на junior-позиции",
+  "skills_title": "Что уже умеешь?",
+  "skills_hint": "Отметь навыки — на их основе построим план.",
+  "custom_skill": "Свой навык",
+  "consent_label": "Я согласен(на) на обработку персональных данных в соответствии с ФЗ-152",
+  "consent_link": "Подробнее",
+  "build_plan": "Построить план",
+  "saving": "Сохраняем…",
+  "consent_required": "Для продолжения нужно согласие на обработку ПДн"
+}

@@ -1,0 +1,32 @@
+{
+  "app_name": "CareerPath Navigator",
+  "tabs": {
+    "dashboard": "Обзор",
+    "plan": "План",
+    "vacancies": "Вакансии",
+    "applications": "Отклики",
+    "interview": "Интервью",
+    "market": "Рынок",
+    "coach": "Коуч",
+    "compass": "Компас",
+    "school": "Школьникам",
+    "leaderboard": "Топ",
+    "settings": "Настройки"
+  },
+  "actions": {
+    "next": "Далее",
+    "back": "Назад",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "retry": "Повторить",
+    "reload": "Перезагрузить",
+    "copy": "Скопировать",
+    "open": "Открыть",
+    "delete": "Удалить",
+    "start": "Начать",
+    "finish": "Завершить"
+  },
+  "loading": "Загрузка…",
+  "error_generic": "Что-то пошло не так",
+  "empty_generic": "Пока пусто"
+}

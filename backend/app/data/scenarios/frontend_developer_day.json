@@ -1,0 +1,95 @@
+{
+  "id": "frontend_developer_day",
+  "role": "Frontend-разработчик",
+  "role_family": "frontend",
+  "duration_minutes": 8,
+  "intro": "Ты — junior frontend-разработчик в e-commerce. Сегодня первый день на новом проекте. Поехали!",
+  "start_node": "morning_sync",
+  "nodes": {
+    "morning_sync": {
+      "type": "scenario",
+      "text": "10:00. Синк с дизайнером. Он показывает макет нового экрана «Корзина» — с плавной анимацией добавления товара. Тимлид говорит: «Нужно сделать к пятнице». Что делаешь?",
+      "choices": [
+        {
+          "id": "study_design",
+          "text": "Разберу макет в Figma, выпишу все состояния и компоненты",
+          "next": "component_analysis",
+          "effects": { "add_skill": "figma", "xp": 20, "confidence": 10 },
+          "feedback": "Верный старт — понять, что именно нужно реализовать."
+        },
+        {
+          "id": "ask_estimate",
+          "text": "Сразу оценю сроки и скажу, что не успею",
+          "next": "estimate_chat",
+          "effects": { "add_skill": "communication", "xp": 10 },
+          "feedback": "Оценка важна, но сначала нужно понять объём."
+        },
+        {
+          "id": "start_layout",
+          "text": "Сразу начну верстать — потом разберусь",
+          "next": "bad_start",
+          "effects": { "gap_skill": "figma", "xp": 5 },
+          "feedback": "Вёрстка без изучения макета приведёт к переделкам."
+        }
+      ]
+    },
+    "component_analysis": {
+      "type": "scenario",
+      "text": "Ты видишь: экран состоит из 6 компонентов, из которых 4 — уже есть в дизайн-системе. С чего начнёшь?",
+      "choices": [
+        {
+          "id": "reuse_components",
+          "text": "Переиспользую компоненты дизайн-системы, напишу только 2 новых",
+          "next": "component_reuse",
+          "effects": { "add_skill": "react", "xp": 25, "confidence": 15 },
+          "feedback": "Именно! Не изобретай колесо."
+        },
+        {
+          "id": "write_all",
+          "text": "Напишу все 6 компонентов с нуля — так надёжнее",
+          "next": "duplicate_work",
+          "effects": { "add_skill": "html_css", "xp": 15, "gap_skill": "react" },
+          "feedback": "Дублирование — плохая практика. Изучи дизайн-систему."
+        }
+      ]
+    },
+    "component_reuse": {
+      "type": "scenario",
+      "text": "Осталось два новых компонента. Один из них — с анимацией добавления в корзину. Как реализуешь анимацию?",
+      "choices": [
+        {
+          "id": "css_transition",
+          "text": "CSS-переходы с transform и opacity — просто и производительно",
+          "next": "success",
+          "effects": { "add_skill": "html_css", "xp": 30, "confidence": 20 },
+          "feedback": "Для большинства случаев этого достаточно."
+        },
+        {
+          "id": "framer_motion",
+          "text": "Подключу библиотеку анимаций — удобнее для сложных сценариев",
+          "next": "partial",
+          "effects": { "add_skill": "typescript", "xp": 20 },
+          "feedback": "Хороший выбор для сложной анимации, но добавляет вес бандла."
+        }
+      ]
+    },
+    "success": {
+      "type": "end",
+      "text": "Тимлид: «Отличная работа! Уложился в срок и не задублировал компоненты». Ты закрыл день с уверенностью.",
+      "outcome": "success",
+      "summary": "Ты показал навыки работы с React, дизайн-системой и CSS. TypeScript — следующий шаг."
+    },
+    "partial": {
+      "type": "end",
+      "text": "Тимлид принимает работу, но замечает: «Можно было проще». Ты соглашаешься.",
+      "outcome": "partial",
+      "summary": "Урок: не всё требует библиотек. Простые решения часто лучше."
+    },
+    "bad_start": {
+      "type": "end",
+      "text": "Дизайнер приходит и говорит: «Ты не так понял макет». Ты переделываешь с нуля.",
+      "outcome": "partial",
+      "summary": "Урок: сначала разобраться, потом писать. Figma и React — в план."
+    }
+  }
+}

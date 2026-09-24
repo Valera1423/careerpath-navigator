@@ -1,0 +1,53 @@
+# Профили ролей. Ключи соответствуют detect_role_family().
+# core — гарантированный набор навыков для роли, даже если API вернул мало вакансий.
+# dependencies — что нужно освоить ДО (используется в compass graph и симуляторе).
+
+data:
+  keywords: ["аналитик", "данн", "data", "bi", "ml", "machine", "дата"]
+  core: ["sql", "python", "excel", "statistics", "power_bi", "pandas", "product_analytics"]
+  dependencies:
+    pandas: ["python"]
+    numpy: ["python"]
+    ml: ["python", "statistics", "numpy"]
+    power_bi: ["excel", "statistics"]
+    product_analytics: ["statistics", "sql"]
+
+backend:
+  keywords: ["backend", "бэкенд", "python", "java", "разработчик", "developer", "api", "программист"]
+  core: ["python", "sql", "rest_api", "docker", "git", "linux", "postgresql"]
+  dependencies:
+    fastapi: ["python", "rest_api"]
+    django: ["python", "sql"]
+    docker: ["linux"]
+    kubernetes: ["docker"]
+    postgresql: ["sql"]
+
+frontend:
+  keywords: ["frontend", "фронтенд", "react", "верст", "web", "javascript", "вёрстка"]
+  core: ["javascript", "typescript", "react", "html_css", "git", "rest_api"]
+  dependencies:
+    react: ["javascript", "html_css"]
+    typescript: ["javascript"]
+    vue: ["javascript", "html_css"]
+    nextjs: ["react"]
+
+design:
+  keywords: ["дизайн", "design", "ux", "ui", "продукт", "графическ"]
+  core: ["figma", "ui_ux", "communication", "english", "prototyping"]
+  dependencies:
+    ui_ux: ["figma"]
+    design_system: ["figma", "ui_ux"]
+    user_research: ["ui_ux"]
+
+management:
+  keywords: ["менеджер", "manager", "product", "проект", "координат", "продакт"]
+  core: ["project_management", "agile", "communication", "excel", "english", "jira"]
+  dependencies:
+    scrum: ["agile"]
+    kanban: ["agile"]
+    product_management: ["agile", "communication"]
+
+generic:
+  keywords: []
+  core: ["communication", "english", "excel", "git", "time_management"]
+  dependencies: {}
