@@ -1,9 +1,0 @@
-frontend/
-backend/tests/
-backend/.venv/
-**/__pycache__/
-*.pyc
-.env
-.env.*
-!.env.example
-data/
