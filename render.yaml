@@ -1,0 +1,62 @@
+# render.yaml
+databases:
+  - name: careerpath-db
+    databaseName: careerpath
+    user: careerpath
+    plan: free
+
+services:
+  # --- Backend Web Service ---
+  - type: web
+    name: careerpath-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: careerpath-db
+          property: connectionString
+      - key: ALLOW_INSECURE_INIT_DATA
+        value: "true"
+      - key: ADMIN_SECRET
+        generateValue: true
+      - key: MAX_BOT_TOKEN
+        sync: false  # Вводится вручную в дашборде
+      - key: MAX_WEBHOOK_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "https://careerpath-frontend.onrender.com"
+
+  # --- Frontend Static Site ---
+  - type: web
+    name: careerpath-frontend
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: ./frontend/dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: VITE_API_BASE
+        value: "https://careerpath-backend.onrender.com/api/v1"
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # --- Bot Background Worker (требует платного плана) ---
+  # - type: worker
+  #   name: careerpath-bot
+  #   runtime: docker
+  #   dockerfilePath: ./backend/Dockerfile
+  #   dockerContext: ./backend
+  #   plan: starter
+  #   command: python -m app.services.scheduler
+  #   envVars:
+  #     - key: DATABASE_URL
+  #       fromDatabase:
+  #         name: careerpath-db
+  #         property: connectionString
+  #     - key: MAX_BOT_TOKEN
+  #       sync: false
