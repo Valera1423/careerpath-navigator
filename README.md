@@ -579,10 +579,6 @@ vercel inspect <deployment-url> --logs
 
 MIT
 
-## Команда
-
-- Валерий — backend, бот MAX
-- Валентина — frontend, UI
 
 ## Контакты
 
